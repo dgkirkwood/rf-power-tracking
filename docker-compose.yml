@@ -1,0 +1,44 @@
+version: '3'
+
+
+services:
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    networks:
+      app-network:
+        ipv4_address: 172.30.0.10
+    container_name: grafana
+    depends_on:
+      - database
+
+
+  database:
+    image: influxdb
+    ports:
+      - "8086:8086"
+    networks:
+      app-network:
+        ipv4_address: 172.30.0.20
+    container_name: influxdb
+
+
+  primeapicall:
+    build: ./PrimeAPICall
+    volumes:
+      - ./PrimeAPICall:/usr/src/app
+    networks:
+      app-network:
+        ipv4_address: 172.30.0.30
+    container_name: primeapicall
+    depends_on:
+      - grafana
+
+networks:
+  app-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.30.0.0/16
